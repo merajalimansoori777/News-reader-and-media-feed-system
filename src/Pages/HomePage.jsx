@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import NewsItem from "../Components/NewsItem";
-
+const BASE_URL = "https://api.allorigins.win/get?url=";
+const GNEWS_URL = "https://gnews.io/api/v4/search";
 export default function HomePage() {
   const [page, setPage] = useState(1);
   const [articles, setArticles] = useState([]);
@@ -19,43 +20,44 @@ export default function HomePage() {
   }, [searchParams]);
 
   // Fetch first page of data
-  async function getAPIData() {
-    try {
-      const response = await fetch(
-        `https://corsproxy.io/?https://gnews.io/api/v4/search?q=${q}&lang=${language}&max=24&page=1&apikey=b445839247464771bee592750c03ed56`
-      );
-      const data = await response.json();
+async function getAPIData() {
+  try {
+    const response = await fetch(
+      `${BASE_URL}${encodeURIComponent(`${GNEWS_URL}?q=${q}&lang=${language}&max=24&page=1&apikey=b445839247464771bee592750c03ed56`)}`
+    );
+    const raw = await response.json();
+    const data = JSON.parse(raw.contents);
 
-      if (data.articles) {
-        setArticles(data.articles);
-        setTotalResults(data.totalArticles || data.articles.length);
-      } else {
-        setArticles([]);
-        setTotalResults(0);
-      }
-    } catch (error) {
-      console.error("Error fetching news:", error);
+    if (data.articles) {
+      setArticles(data.articles);
+      setTotalResults(data.totalArticles || data.articles.length);
+    } else {
+      setArticles([]);
+      setTotalResults(0);
     }
+  } catch (error) {
+    console.error("Error fetching news:", error);
   }
+}
 
-  // Load more on scroll
-  const fetchData = async () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
+const fetchData = async () => {
+  const nextPage = page + 1;
+  setPage(nextPage);
 
-    try {
-      const response = await fetch(
-        `https://corsproxy.io/?https://gnews.io/api/v4/search?q=${q}&lang=${language}&max=24&page=${nextPage}&apikey=b445839247464771bee592750c03ed56`
-      );
-      const data = await response.json();
+  try {
+    const response = await fetch(
+      `${BASE_URL}${encodeURIComponent(`${GNEWS_URL}?q=${q}&lang=${language}&max=24&page=${nextPage}&apikey=b445839247464771bee592750c03ed56`)}`
+    );
+    const raw = await response.json();
+    const data = JSON.parse(raw.contents);
 
-      if (data.articles) {
-        setArticles((prev) => prev.concat(data.articles));
-      }
-    } catch (error) {
-      console.error("Error fetching more news:", error);
+    if (data.articles) {
+      setArticles((prev) => prev.concat(data.articles));
     }
-  };
+  } catch (error) {
+    console.error("Error fetching more news:", error);
+  }
+};
 
   useEffect(() => {
     getAPIData();
@@ -92,3 +94,4 @@ export default function HomePage() {
     </>
   );
 }
+
