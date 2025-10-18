@@ -4,51 +4,62 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import NewsItem from "../Components/NewsItem";
 
 export default function HomePage() {
-  let [page,setPage] = useState(1)
-  let [articles, setArticles] = useState([]);
-  let [totalResults, setTotalResults] = useState(0);
+  const [page, setPage] = useState(1);
+  const [articles, setArticles] = useState([]);
+  const [totalResults, setTotalResults] = useState(0);
 
-  let [q, setQ] = useState("All");
-  let [language, setLanguage] = useState("hi");
+  const [q, setQ] = useState("All");
+  const [language, setLanguage] = useState("en"); // GNews supports 'en', 'hi', etc.
 
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     setQ(searchParams.get("q") ?? "All");
-    setLanguage(searchParams.get("language") ?? "hi");
+    setLanguage(searchParams.get("language") ?? "en");
   }, [searchParams]);
 
+  // Fetch first page of data
   async function getAPIData() {
-    let response = await fetch(
-      `https://newsapi.org/v2/everything?q=${q}&pageSize=24&page=1&sortBy=publishedAt&language=${language}&apiKey=bab78c2c1c2846af9ffa85bc863e826d`
-    );
+    try {
+      const response = await fetch(
+        `https://gnews.io/api/v4/search?q=${q}&lang=${language}&max=24&page=1&apikey=b445839247464771bee592750c03ed56`
+      );
+      const data = await response.json();
 
-    response = await response.json();
-
-    if (response.status === "ok") {
-      setArticles(response.articles);
-      setTotalResults(response.totalResults);
+      if (data.articles) {
+        setArticles(data.articles);
+        setTotalResults(data.totalArticles || data.articles.length);
+      } else {
+        setArticles([]);
+        setTotalResults(0);
+      }
+    } catch (error) {
+      console.error("Error fetching news:", error);
     }
   }
 
-  let fetchData = async() =>{
-     setPage(page+1)
-     let response = await fetch(
-      `https://newsapi.org/v2/everything?q=${q}&pageSize=24&page=${page}&sortBy=publishedAt&language=${language}&apiKey=bab78c2c1c2846af9ffa85bc863e826d`
-    );
+  // Load more on scroll
+  const fetchData = async () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
 
-    response = await response.json();
+    try {
+      const response = await fetch(
+        `https://gnews.io/api/v4/search?q=${q}&lang=${language}&max=24&page=${nextPage}&apikey=b445839247464771bee592750c03ed56`
+      );
+      const data = await response.json();
 
-    if (response.status === "ok") {
-      setArticles(articles.concat(response.articles));
-    
+      if (data.articles) {
+        setArticles(articles.concat(data.articles));
+      }
+    } catch (error) {
+      console.error("Error fetching more news:", error);
     }
-  }
+  };
 
   useEffect(() => {
     getAPIData();
   }, [q, language]);
-  console.log("Articles:", articles);
 
   return (
     <>
@@ -58,26 +69,23 @@ export default function HomePage() {
         </h5>
 
         <InfiniteScroll
-          dataLength={articles.length} //This is important field to render the next data
+          dataLength={articles.length}
           next={fetchData}
-          hasMore={articles.length<totalResults}
+          hasMore={articles.length < totalResults}
           loader={<h4>Loading...</h4>}
-          
         >
           <div className="row">
-            {articles.map((item, index) => {
-              return (
-                <NewsItem
-                  key={index}
-                  source={item.source.name}
-                  title={item.title}
-                  description={item.description}
-                  url={item.url}
-                  pic={item.urlToImage ?? "/image/noimage.png"}
-                  date={item.publishedAt}
-                />
-              );
-            })}
+            {articles.map((item, index) => (
+              <NewsItem
+                key={index}
+                source={item.source.name}
+                title={item.title}
+                description={item.description}
+                url={item.url}
+                pic={item.image ?? "/image/noimage.png"}
+                date={item.publishedAt}
+              />
+            ))}
           </div>
         </InfiniteScroll>
       </div>
