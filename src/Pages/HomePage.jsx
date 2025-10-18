@@ -22,7 +22,8 @@ export default function HomePage() {
   async function getAPIData() {
     try {
       const response = await fetch(
-        `https://gnews.io/api/v4/search?q=${q}&lang=${language}&max=24&page=1&apikey=b445839247464771bee592750c03ed56`
+     const response = await fetch(`/api/news?q=${q}&lang=${language}&page=1`);
+
       );
       const data = await response.json();
 
@@ -45,7 +46,8 @@ export default function HomePage() {
 
     try {
       const response = await fetch(
-        `https://gnews.io/api/v4/search?q=${q}&lang=${language}&max=24&page=${nextPage}&apikey=b445839247464771bee592750c03ed56`
+const response = await fetch(`/api/news?q=${q}&lang=${language}&page=${nextPage}`);
+
       );
       const data = await response.json();
 
@@ -92,3 +94,4 @@ export default function HomePage() {
     </>
   );
 }
+
