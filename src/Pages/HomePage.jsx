@@ -19,45 +19,40 @@ export default function HomePage() {
   }, [searchParams]);
 
   // Fetch first page of data
-  async function getAPIData() {
-    try {
-      const response = await fetch(
-     const response = await fetch(`/api/news?q=${q}&lang=${language}&page=1`);
+async function getAPIData() {
+  try {
+    const response = await fetch(`/api/news?q=${q}&lang=${language}&page=1`);
+    const data = await response.json();
 
-      );
-      const data = await response.json();
-
-      if (data.articles) {
-        setArticles(data.articles);
-        setTotalResults(data.totalArticles || data.articles.length);
-      } else {
-        setArticles([]);
-        setTotalResults(0);
-      }
-    } catch (error) {
-      console.error("Error fetching news:", error);
+    if (data.articles) {
+      setArticles(data.articles);
+      setTotalResults(data.totalArticles || data.articles.length);
+    } else {
+      console.error("No articles found:", data);
+      setArticles([]);
     }
+  } catch (error) {
+    console.error("Error fetching news:", error);
   }
+}
+
 
   // Load more on scroll
   const fetchData = async () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
+  const nextPage = page + 1;
+  setPage(nextPage);
+  try {
+    const response = await fetch(`/api/news?q=${q}&lang=${language}&page=${nextPage}`);
+    const data = await response.json();
 
-    try {
-      const response = await fetch(
-const response = await fetch(`/api/news?q=${q}&lang=${language}&page=${nextPage}`);
-
-      );
-      const data = await response.json();
-
-      if (data.articles) {
-        setArticles(articles.concat(data.articles));
-      }
-    } catch (error) {
-      console.error("Error fetching more news:", error);
+    if (data.articles) {
+      setArticles(prev => prev.concat(data.articles));
     }
-  };
+  } catch (error) {
+    console.error("Error fetching more news:", error);
+  }
+};
+
 
   useEffect(() => {
     getAPIData();
@@ -94,4 +89,5 @@ const response = await fetch(`/api/news?q=${q}&lang=${language}&page=${nextPage}
     </>
   );
 }
+
 
