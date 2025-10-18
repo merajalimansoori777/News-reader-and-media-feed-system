@@ -1,3 +1,5 @@
+// /api/news.js
+
 export default async function handler(req, res) {
   const { q = "general", lang = "en", page = 1 } = req.query;
 
@@ -7,9 +9,14 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(url);
     const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Error fetching from GNews");
+    }
+
     res.status(200).json(data);
   } catch (error) {
-    console.error("Error fetching news:", error);
-    res.status(500).json({ error: "Failed to fetch news" });
+    console.error("Error fetching from GNews:", error);
+    res.status(500).json({ error: "Failed to fetch from GNews" });
   }
 }
