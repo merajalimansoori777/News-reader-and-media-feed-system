@@ -57,6 +57,7 @@ Now open [http://localhost:5173](http://localhost:5173) in your browser 🚀
 ---
 
 ## 📸 Screenshots
+<img width="1892" height="970" alt="image" src="https://github.com/user-attachments/assets/8798b1d9-a733-4b08-9c20-5e7ecff9a528" />
 
 
 
