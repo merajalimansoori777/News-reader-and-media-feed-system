@@ -24,7 +24,7 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg background sticky-top">
   <div className="container-fluid">
-    <Link className="navbar-brand text-right" to={`/?q=All&language=${language}`}>Newsapp</Link>
+    <Link className="navbar-brand text-right" to={`/?q=All&language=${language}`}>News reader and media feed system</Link>
     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span className="material-symbols-outlined text-light fs-1">
 menu
